@@ -51,6 +51,65 @@ class TestTaskManager(unittest.TestCase):
         add_task(self.tasks, "Test Task", "Description", "01-12-2021")
         result = add_task(self.tasks, "Test Task", "New Description", "02-12-2024")
         self.assertFalse(result)
+    
+    def test_add_empty_title(self):
+        """
+        Reject a task with an empty title.
+        """
+        result = add_task(
+            self.tasks, "", "Description", "01-12-2024"
+        )
+        self.assertFalse(result)
+        self.assertEqual(len(self.tasks), 0)
+
+    def test_add_whitespace_only_title(self):
+        """
+        Reject a title containing only whitespace.
+        """
+        result = add_task(
+            self.tasks, "   ", "Description", "01-12-2024"
+        )
+        self.assertFalse(result)
+        self.assertEqual(len(self.tasks), 0)
+
+
+    def test_add_duplicate_title_different_capitalisation(self):
+        """
+        Reject duplicate titles regardless of capitalisation.
+        """
+        add_task(
+            self.tasks, "Assessment Test", "First task", "01-12-2024"
+        )
+        result = add_task(
+            self.tasks, "assessment test", "Duplicate", "02-12-2024"
+        )
+        self.assertFalse(result)
+        self.assertEqual(len(self.tasks), 1)
+
+    def test_add_duplicate_title_with_surrounding_whitespace(self):
+        """
+        Reject duplicate titles with surrounding whitespace.
+        """
+        add_task(
+            self.tasks, "Assessment Test", "First task", "01-12-2024"
+        )
+        result = add_task(
+            self.tasks, "  ASSESSMENT TEST  ",
+            "Duplicate", "02-12-2024"
+        )
+        self.assertFalse(result)
+        self.assertEqual(len(self.tasks), 1)
+
+    def test_add_task_strips_title_whitespace(self):
+        """
+        Remove surrounding whitespace from a valid title.
+        """
+        result = add_task(
+            self.tasks, "  Unique Task  ", "Description", "01-12-2024"
+        )
+        self.assertTrue(result)
+        self.assertEqual(len(self.tasks), 1)
+        self.assertEqual(self.tasks[0].title, "Unique Task")
 
     def test_add_invalid_due_date(self):
         """

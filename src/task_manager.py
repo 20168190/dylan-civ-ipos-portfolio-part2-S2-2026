@@ -22,8 +22,16 @@ def add_task(tasks, title, description, due_date):
     Side Effects:
         - Saves the updated task list to a file using `save_tasks`.
     """
+    # Strip away surrounding whitespace from the title
+    title = title.strip()
+
+    # Prevent empty titles
+    if not title:
+        print("Error: Task title cannot be empty.")
+        return False
+
     # Prevent duplicate tasks
-    if any(task.title == title for task in tasks):
+    if any(task.title.lower() == title.lower() for task in tasks):
         print("Error: A task with this title already exists.")
         return False
 
