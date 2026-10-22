@@ -3,6 +3,7 @@ from src.task_manager import add_task, delete_task, filter_tasks_by_status
 from src.file_handler import save_tasks, load_tasks
 from src.task import Task
 import os
+import src.task_manager as task_manager
 
 TEST_FILE = "test_tasks.bin"
 
@@ -153,6 +154,63 @@ class TestTaskManager(unittest.TestCase):
         loaded_tasks = load_tasks()
         self.assertEqual(len(loaded_tasks), 1)
         self.assertEqual(loaded_tasks[0].title, "Persistent Task")
+
+    
+    def test_update_task_status_to_completed(self):
+        """
+        Mark an existing task as completed.
+        """
+        task = Task(
+            "Finish assessment",
+            "Complete task",
+            "22-10-2026"
+        )
+        self.tasks.append(task)
+        result = task_manager.update_task_status(
+            self.tasks, "Finish assessment", "completed"
+        )
+        self.assertTrue(result)
+        self.assertEqual(task.status, "completed")
+
+    def test_update_status_for_nonexistent_task(self):
+        """
+        Return False if the requested task does not exist.
+        """
+        result = task_manager.update_task_status(
+            self.tasks, "Missing Task", "completed"
+        )
+        self.assertFalse(result)
+        self.assertEqual(len(self.tasks), 0)
+
+    def test_update_task_status_saves_changes(self):
+        """
+        Persist the updated task status.
+        """
+        task = Task(
+            "Save status",
+            "Test persistence",
+            "22-10-2026"
+        )
+        self.tasks.append(task)
+        save_tasks(self.tasks)
+        result = task_manager.update_task_status(
+            self.tasks, "Save status", "completed"
+        )
+        self.assertTrue(result)
+        loaded_tasks = load_tasks()
+        self.assertEqual(loaded_tasks[0].status, "completed")
+
+    def test_update_task_status_rejects_invalid_status(self):
+        """
+        Reject status values other than pending or completed.
+        """
+        task = Task("Valid Task", "Description", "22-10-2026")
+        self.tasks.append(task)
+        result = task_manager.update_task_status(
+            self.tasks, "Valid Task", "in progress"
+        )
+        self.assertFalse(result)
+        self.assertEqual(task.status, "pending")
 
 
 if __name__ == "__main__":

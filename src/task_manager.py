@@ -69,6 +69,38 @@ def delete_task(tasks, title):
     return False
 
 
+def update_task_status(tasks, title, status):
+    """
+    Update the status of a task identified by its title.
+    
+    Args:
+        tasks (list): The list of existing Task objects.
+        title (str): The title of the task to update.
+        status (str): The new status for the task (e.g. "pending" or "completed").
+    
+    Returns:
+        bool: True if the task was updated, False otherwise.
+
+    Side Effects:
+        - Saves the updated task list using `save_tasks`.
+    """
+
+    if status not in ("pending", "completed"):
+        print("Error: Status must be 'pending' or 'completed'.")
+        return False
+
+    normalised_title = title.strip().lower()
+
+    for task in tasks:
+        if task.title.strip().lower() == normalised_title:
+            task.status = status
+            save_tasks(tasks)
+            return True
+
+    print(f"Error: Task '{title}' not found.")
+    return False
+
+
 def list_tasks(tasks, status=None):
     """
     Display tasks in the task list, optionally filtered by status.
